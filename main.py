@@ -1,7 +1,9 @@
+import argparse
 import os
 
 from dotenv import load_dotenv
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 
 load_dotenv()
 api_key = os.environ.get("OPENROUTER_API_KEY")
@@ -11,29 +13,30 @@ else:
     raise TypeError("API Key not found. Please set the"
     " OPENROUTER_API_KEY environment variable.")
 
+parser = argparse.ArgumentParser(description="AI Chatbot")
+parser.add_argument("user_prompt", type=str, help="User prompt to AI")
+args = parser.parse_args()
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=api_key,
 )
 
-prompt: str = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
-
-completion = client.chat.completions.create(
-    model="openrouter/free",
-    messages=[
-         {
-        "role": "user",
-        "content": prompt,
-        }
+messages: list[ChatCompletionMessageParam] = [
+    {"role": "user", "content": args.user_prompt},
     ]
+
+response = client.chat.completions.create(
+    model="openrouter/free",
+    messages=messages,
 )
 
-if completion.usage != None:
-    print(f"User prompt: {prompt}")
-    print(f"Model: {completion.model}")
-    print(f"Prompt tokens: {completion.usage.prompt_tokens}")
-    print(f"Response tokens: {completion.usage.completion_tokens}")
-    print(f"Response:\n{completion.choices[0].message.content}")
+if response.usage != None:
+    print(f"User prompt: {args.user_prompt}")
+    print(f"Model: {response.model}")
+    print(f"Prompt tokens: {response.usage.prompt_tokens}")
+    print(f"Response tokens: {response.usage.completion_tokens}")
+    print(f"Response:\n{response.choices[0].message.content}")
 else:
     raise RuntimeError("API call failed.")
 
