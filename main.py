@@ -10,8 +10,9 @@ api_key = os.environ.get("OPENROUTER_API_KEY")
 if isinstance(api_key, str):
     print("API Key loaded successfully.")
 else:
-    raise TypeError("API Key not found. Please set the"
-    " OPENROUTER_API_KEY environment variable.")
+    raise TypeError(
+        "API Key not found. Please set the OPENROUTER_API_KEY environment variable."
+    )
 
 parser = argparse.ArgumentParser(description="AI Chatbot")
 parser.add_argument("user_prompt", type=str, help="User prompt to AI")
@@ -25,7 +26,7 @@ client = OpenAI(
 
 messages: list[ChatCompletionMessageParam] = [
     {"role": "user", "content": args.user_prompt},
-    ]
+]
 
 response = client.chat.completions.create(
     model="openrouter/free",
@@ -43,5 +44,3 @@ if response.usage != None:
         print(f"Response:\n{response.choices[0].message.content}")
 else:
     raise RuntimeError("API call failed.")
-
-
